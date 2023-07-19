@@ -6,15 +6,31 @@
 </head>
 <body>
   <%- include('partials/nav') %> <!-- Include the nav.ejs partial -->
-
+  <div class ="titleandgold">
+  <h1 class="rfi">Recently Flipped Items
+  </h1>
+  <img src="https://www.pngkey.com/png/detail/472-4720437_runescape-07-gold-old-school-runescape-gold.png" id="rsgold" alt="Runescape 07 Gold - Old School Runescape Gold@pngkey.com">
+</div>
+<h1 class="rfi">Recently Sold Items</h1>
   <div class="recentlyflipped">
-    <h1>Recently Flipped Items:</h1>
-    <% items.forEach((item) => { %>
+    <% soldItems.forEach((item) => { %>
       <div class="item">
         <h2><%= item.item_name %></h2>
-        <p><strong>Current Price:</strong> <%= item.item_price %></p>
-        <p><strong>Amount Sold:</strong> <%= sales.find((sale) => sale.item_id === item.item_id).amt_sold %></p>
-        <p><strong>Sold For:</strong> <%= sales.find((sale) => sale.item_id === item.item_id).total_price %></p>
+        <p><strong>Current Price:</strong> <span class="green"><%= item.item_price %></span></p>
+        <p><strong>Amount Sold:</strong> <span class="green"><%= sales.find((sale) => sale.item_id === item.item_id).amt_sold %></span></p>
+        <p><strong>Sold For:</strong> <span class="green"><%= sales.find((sale) => sale.item_id === item.item_id).total_price %></span></p>
+      </div>
+    <% }); %>
+  </div>
+
+  <h1 class="rfi">Recently Purchased Items</h1>
+  <div class="recentlyflipped">
+    <% purchasedItems.forEach((item) => { %>
+      <div class="item">
+        <h2><%= item.item_name %></h2>
+        <p><strong>Current Price:</strong> <span class="red"><%= item.item_price %></span></p>
+        <p><strong>Amount Purchased:</strong> <span class="red"><%= purchases.find((purchase) => purchase.item_id === item.item_id).amt_bought %></span></p>
+        <p><strong>Purchased For:</strong> <span class="red"><%= purchases.find((purchase) => purchase.item_id === item.item_id).total_cost %></span></p>
       </div>
     <% }); %>
   </div>
