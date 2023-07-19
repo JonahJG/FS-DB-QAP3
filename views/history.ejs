@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flipping History</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/nav') %> <!-- Include the nav.ejs partial -->
+  <h1>Flipping History</h1>
+
+  <h2>Add Purchase</h2>
+  <form id="add-purchase-form" onsubmit="addPurchase(event)">
+    <label for="purchase-item-id">Item ID:</label>
+    <input type="text" id="purchase-item-id" name="purchase-item-id" required>
+  
+    <label for="purchase-item-name">Item Name:</label>
+    <input type="text" id="purchase-item-name" name="purchase-item-name" required>
+  
+    <label for="purchase-price-per-item">Price per Item:</label>
+    <input type="number" id="purchase-price-per-item" name="purchase-price-per-item" required>
+  
+    <label for="purchase-amount-bought">Amount Bought:</label>
+    <input type="number" id="purchase-amount-bought" name="purchase-amount-bought" required>
+  
+    <label for="purchase-total-amount">Total Amount:</label>
+    <input type="number" id="purchase-total-amount" name="purchase-total-amount" required>
+  
+    <button type="submit">Add Purchase</button>
+  </form>
+  
+  <h2>Add Sale</h2>
+  <form id="add-sale-form" onsubmit="addSale(event)">
+    <label for="sale-item-id">Item ID:</label>
+    <input type="text" id="sale-item-id" name="sale-item-id" required>
+  
+    <label for="sale-item-name">Item Name:</label>
+    <input type="text" id="sale-item-name" name="sale-item-name" required>
+  
+    <label for="sale-price-per-item">Price per Item:</label>
+    <input type="number" id="sale-price-per-item" name="sale-price-per-item" required>
+  
+    <label for="sale-amount-sold">Amount Sold:</label>
+    <input type="number" id="sale-amount-sold" name="sale-amount-sold" required>
+  
+    <label for="sale-total-amount">Total Amount:</label>
+    <input type="number" id="sale-total-amount" name="sale-total-amount" required>
+  
+    <button type="submit">Add Sale</button>
+  </form>
+  
+  <div class="history-view">
+    <div id="sales-history">
+      <h2>Sales History - Last 10 <a href="./history-all">[ALL]</a></h2>
+      <% sales.forEach((sale, index) => { %>
+        <% const item = items.find((item) => item.item_id === sale.item_id); %>
+        <div class="flipping-entry">
+          <p><strong>Item:</strong> <%= item ? item.item_name : 'N/A' %></p>
+          <p><strong>Amount Sold:</strong> <%= sale.amt_sold %></p>
+          <p><strong>Sell Time:</strong> <%= sale.sell_time %></p>
+          <p><strong>Total Price:</strong> <%= sale.total_price %></p>
+          <button onclick="editSale(<%= index %>)">Edit</button>
+          <button onclick="replaceSale(<%= index %>)">Replace</button>
+          <button onclick="deleteSale(<%= index %>)">Delete</button>
+        </div>
+      <% }); %>
+    </div>
+
+    <div id="purchases-history">
+      <h2>Purchases History Lat 10 <a href="./history-all">[ALL]</a></h2>
+      <% purchases.forEach((purchase, index) => { %>
+        <% const item = items.find((item) => item.item_id === purchase.item_id); %>
+        <div class="flipping-entry">
+          <p><strong>Item:</strong> <%= item ? item.item_name : 'N/A' %></p>
+          <p><strong>Amount Bought:</strong> <%= purchase.amt_bought %></p>
+          <p><strong>Buy Time:</strong> <%= purchase.buy_time %></p>
+          <p><strong>Total Cost:</strong> <%= purchase.total_cost %></p>
+          <button onclick="editPurchase(<%= index %>)">Edit</button>
+          <button onclick="replacePurchase(<%= index %>)">Replace</button>
+          <button onclick="deletePurchase(<%= index %>)">Delete</button>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+  <%- include('partials/foot') %> <!-- Include the foot.ejs partial -->
+</body>
+</html>

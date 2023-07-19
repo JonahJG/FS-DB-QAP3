@@ -1,14 +1,16 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
-const pool = require('./services/rsge_db')
+const pool = require('./services/rsge_db');
+// Require the history router
+const historyRouter = require('./routes/history');
+
 
 app.set('view engine', 'ejs');
 app.set('views', 'views'); // Set the views directory
 
 // Serve static files from the "public" folder
 app.use(express.static('public'));
-
 
 app.get('/', async (req, res) => {
   try {
@@ -23,7 +25,16 @@ app.get('/', async (req, res) => {
     const salesResult = await client.query(salesQuery);
     const sales = salesResult.rows;
 
-    const itemIds = sales.map((sale) => sale.item_id);
+    const purchasesQuery = `
+      SELECT DISTINCT ON (item_id) *
+      FROM purchases
+      ORDER BY item_id, buy_time DESC
+      LIMIT 5
+    `;
+    const purchasesResult = await client.query(purchasesQuery);
+    const purchases = purchasesResult.rows;
+
+    const itemIds = [...new Set([...sales.map((sale) => sale.item_id), ...purchases.map((purchase) => purchase.item_id)])];
 
     const itemsQuery = `
       SELECT *
@@ -48,14 +59,37 @@ app.get('/', async (req, res) => {
       };
     });
 
+    const recentlyPurchasedItems = purchases.map((purchase) => {
+      const { item_id, buy_price, buy_time } = purchase;
+      const item = items.find((item) => item.item_id === item_id);
+      return {
+        item_id,
+        buy_price,
+        buy_time,
+        item_name: item ? item.item_name : '',
+        item_description: item ? item.item_description : '',
+        item_price: item ? item.item_price : '',
+        amt_bought: purchase.amt_bought,
+        total_price: purchase.total_cost
+      };
+    });
+
     client.release();
 
-    res.render('./index', { items: recentlySoldItems, sales: sales }); // Pass both items and sales data to the template
+    res.render('./index', {
+      soldItems: recentlySoldItems,
+      purchasedItems: recentlyPurchasedItems,
+      sales: sales,
+      purchases: purchases,
+      items: items
+    });
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 });
 
+// Use the history router for the /history route
+app.use('/history', historyRouter);
 
 app.listen(PORT, () => {
   console.log(`Runescape Flipping Tracker is running on port ${PORT}.`);
