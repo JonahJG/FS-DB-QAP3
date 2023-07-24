@@ -5,10 +5,11 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <%- include('partials/nav') %> <!-- Include the nav.ejs partial -->
+  <%- include('partials/nav') %> <!-- Include the nav.ejs partial -->
   <h1>Flipping History</h1>
-
+  <div class="purchaseadd">
   <h2>Add Purchase</h2>
+  <div class="purchaseform">
   <form id="add-purchase-form" onsubmit="addPurchase(event)">
     <label for="purchase-item-id">Item ID:</label>
     <input type="text" id="purchase-item-id" name="purchase-item-id" required>
@@ -27,8 +28,12 @@
   
     <button type="submit">Add Purchase</button>
   </form>
+  </div>
+</div>
   
+<div class="saleform">
   <h2>Add Sale</h2>
+  <div>
   <form id="add-sale-form" onsubmit="addSale(event)">
     <label for="sale-item-id">Item ID:</label>
     <input type="text" id="sale-item-id" name="sale-item-id" required>
@@ -47,10 +52,12 @@
   
     <button type="submit">Add Sale</button>
   </form>
+</div>
+  </div>
   
   <div class="history-view">
     <div id="sales-history">
-      <h2>Sales History - Last 10 <a href="./history-all">[ALL]</a></h2>
+      <h2>Sales History - Last 10 <a href="/history/sales-all">[ALL]</a></h2>
       <% sales.forEach((sale, index) => { %>
         <% const item = items.find((item) => item.item_id === sale.item_id); %>
         <div class="flipping-entry">
