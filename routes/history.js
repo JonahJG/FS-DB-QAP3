@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
       const itemsQuery = 'SELECT * FROM items';
       const itemsResult = await client.query(itemsQuery);
       const items = itemsResult.rows;
-  
+ 
       client.release();
   
       res.render('history', { purchases, sales, items });
@@ -31,6 +31,33 @@ router.get('/', async (req, res) => {
     }
   });
   
+  router.get('/sales-all', async (req, res) => {
+    try {
+      const client = await pool.connect();
+      const salesQuery = 'SELECT * FROM sales ORDER BY sell_time DESC';
+      const salesResult = await client.query(salesQuery);
+      const sales = salesResult.rows;
+      client.release();
+      res.render('sales-all', { sales });
+    } catch (error) {
+      console.error('Error fetching sales data:', error);
+      res.status(500).send('Error fetching sales data. Please try again later.');
+    }
+  });
+  
+  router.get('/purchases-all', async (req, res) => {
+    try {
+      const client = await pool.connect();
+      const purchasesQuery = 'SELECT * FROM purchases ORDER BY buy_time DESC';
+      const purchasesResult = await client.query(purchasesQuery);
+      const purchases = purchasesResult.rows;
+      client.release();
+      res.render('history', { purchases });
+    } catch (error) {
+      console.error('Error fetching purchase data:', error);
+      res.status(500).send('Error fetching purchase data. Please try again later.');
+    }
+  });
   
 
 module.exports = router;

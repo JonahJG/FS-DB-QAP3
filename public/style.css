@@ -68,9 +68,50 @@ nav a{
 #sales-history {
     background: bisque;
     width: 50%;
+    
 }
 
 #purchases-history {
     background: rgb(187, 164, 135);
     width: 50%;
+    
 }
+
+.purchaseadd {
+
+    display: flex;
+    background: rgb(187, 164, 135);
+    width: auto;
+    
+}
+
+.purchaseform {
+
+    background: rgb(187, 164, 135);
+    width: auto;
+   
+   
+}
+
+.saleadd {
+
+    width: auto;
+    display: flex;
+    background: bisque;
+
+
+}
+
+.saleform {
+    
+    width: auto;
+    background: bisque;
+    
+}
+
+.forms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+

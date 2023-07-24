@@ -1,10 +1,11 @@
+// app.js
 const express = require('express');
 const app = express();
 const PORT = 3000;
-const pool = require('./services/rsge_db');
+const { getRecentSales, getRecentPurchases, getItemsByIds } = require('./services/dataService');
 // Require the history router
 const historyRouter = require('./routes/history');
-
+const salesAllRouter = require('./routes/sales-allRouter'); 
 
 app.set('view engine', 'ejs');
 app.set('views', 'views'); // Set the views directory
@@ -14,35 +15,16 @@ app.use(express.static('public'));
 
 app.get('/', async (req, res) => {
   try {
-    const client = await pool.connect();
+    const limit = 5;
 
-    const salesQuery = `
-      SELECT DISTINCT ON (item_id) *
-      FROM sales
-      ORDER BY item_id, sell_time DESC
-      LIMIT 5
-    `;
-    const salesResult = await client.query(salesQuery);
-    const sales = salesResult.rows;
-
-    const purchasesQuery = `
-      SELECT DISTINCT ON (item_id) *
-      FROM purchases
-      ORDER BY item_id, buy_time DESC
-      LIMIT 5
-    `;
-    const purchasesResult = await client.query(purchasesQuery);
-    const purchases = purchasesResult.rows;
+    // Fetch recent sales and purchases using the dataService functions
+    const sales = await getRecentSales(limit);
+    const purchases = await getRecentPurchases(limit);
 
     const itemIds = [...new Set([...sales.map((sale) => sale.item_id), ...purchases.map((purchase) => purchase.item_id)])];
 
-    const itemsQuery = `
-      SELECT *
-      FROM items
-      WHERE item_id = ANY($1)
-    `;
-    const itemsResult = await client.query(itemsQuery, [itemIds]);
-    const items = itemsResult.rows;
+    // Fetch items using the dataService function
+    const items = await getItemsByIds(itemIds);
 
     const recentlySoldItems = sales.map((sale) => {
       const { item_id, sell_price, sell_time } = sale;
@@ -74,8 +56,6 @@ app.get('/', async (req, res) => {
       };
     });
 
-    client.release();
-
     res.render('./index', {
       soldItems: recentlySoldItems,
       purchasedItems: recentlyPurchasedItems,
@@ -91,7 +71,8 @@ app.get('/', async (req, res) => {
 // Use the history router for the /history route
 app.use('/history', historyRouter);
 
+app.use('/sales-all', salesAllRouter);
+
 app.listen(PORT, () => {
   console.log(`Runescape Flipping Tracker is running on port ${PORT}.`);
 });
-
