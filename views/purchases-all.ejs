@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Purchases</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/nav') %>
+  <h1>All Purchases</h1>
+  <div class="history-view">
+    <div id="sales-history">
+      <h2>Purchase History - All</h2>
+      <% purchases.forEach((purchase, index) => { %>
+        <div class="flipping-entry">
+          <p><strong>Item:</strong> <%= purchase.item_name || 'N/A' %></p>
+          <p><strong>Amount Sold:</strong> <%= purchase.amt_bought %></p>
+          <p><strong>Sell Time:</strong> <%= purchase.buy_time %></p>
+          <p><strong>Total Price:</strong> <%= purchase.total_cost %></p>
+          <button onclick="editPurchase()">Edit</button>
+          <button onclick="replacePurchase()">Replace</button>
+          <button onclick="deletePurchase()">Delete</button>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+  <%- include('partials/foot') %> 
+</body>
+</html>

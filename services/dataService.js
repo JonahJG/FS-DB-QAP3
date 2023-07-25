@@ -27,6 +27,30 @@ async function getRecentPurchases(limit) {
   return purchasesResult.rows;
 }
 
+async function getAllSales() {
+  const client = await pool.connect();
+  const salesQuery = `
+    SELECT *
+    FROM sales
+    ORDER BY sell_time DESC
+  `;
+  const salesResult = await client.query(salesQuery);
+  client.release();
+  return salesResult.rows;
+}
+
+async function getAllPurchases() {
+  const client = await pool.connect();
+  const purchasesQuery = `
+    SELECT *
+    FROM purchases
+    ORDER BY buy_time DESC
+  `;
+  const purchasesResult = await client.query(purchasesQuery);
+  client.release();
+  return purchasesResult.rows;
+}
+
 async function getItemsByIds(itemIds) {
   const client = await pool.connect();
   const itemsQuery = `
@@ -44,4 +68,6 @@ module.exports = {
   getRecentSales,
   getRecentPurchases,
   getItemsByIds,
+  getAllSales,
+  getAllPurchases
 };

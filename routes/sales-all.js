@@ -1,14 +1,13 @@
 
 const express = require('express');
 const router = express.Router();
-const { getRecentSales, getItemsByIds } = require('../services/dataService');
+const { getAllSales, getItemsByIds } = require('../services/dataService');
 
 router.get('/', async (req, res) => {
   try {
-    const limit = 10;
 
     // Fetch recent sales using the dataService function
-    const sales = await getRecentSales(limit);
+    const sales = await getAllSales();
 
     const itemIds = sales.map((sale) => sale.item_id);
   
@@ -16,8 +15,8 @@ router.get('/', async (req, res) => {
     // Fetch items using the dataService function
     const items = await getItemsByIds(itemIds);
 
-    console.log('Items:', items);
-    console.log('Sales:', sales);
+    if(DEBUG)console.log('Items:', items);
+    if(DEBUG)console.log('Sales:', sales);
 
     // Mapping sales with their corresponding items
     const salesWithItems = sales.map((sale) => {
@@ -35,7 +34,7 @@ router.get('/', async (req, res) => {
       };
     });
 
-    console.log('Sales With Items:', salesWithItems); 
+    if(DEBUG)console.log('Sales With Items:', salesWithItems); 
 
     res.render('sales-all', { sales: salesWithItems });
   } catch (error) {
