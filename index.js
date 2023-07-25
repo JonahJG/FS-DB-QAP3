@@ -1,17 +1,35 @@
-// app.js
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const methodOverride = require('method-override');
 const { getRecentSales, getRecentPurchases, getItemsByIds } = require('./services/dataService');
 // Require the history router
 const historyRouter = require('./routes/history');
-const salesAllRouter = require('./routes/sales-allRouter'); 
+const salesAllRouter = require('./routes/sales-all'); 
+const purchasesAllRouter = require('./routes/purchases-all');
+const addPurchasesRouter = require('./routes/addPurchases');
+const addSaleRouter = require('./routes/addSales')
+const patchSaleRouter = require('./routes/patchSale');
+const patchPurchaseRouter = require('./routes/patchPurchase');
+
+
 
 app.set('view engine', 'ejs');
 app.set('views', 'views'); // Set the views directory
 
 // Serve static files from the "public" folder
 app.use(express.static('public'));
+
+// Add the method-override middleware
+app.use(methodOverride('_method'));
+
+// Use the built-in express.json() middleware for parsing JSON data in the request body
+app.use(express.json());
+
+// Use the built-in express.urlencoded() middleware for parsing form data in the request body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+global.DEBUG = true;
 
 app.get('/', async (req, res) => {
   try {
@@ -70,8 +88,25 @@ app.get('/', async (req, res) => {
 
 // Use the history router for the /history route
 app.use('/history', historyRouter);
-
 app.use('/sales-all', salesAllRouter);
+app.use('/purchases-all', purchasesAllRouter);
+app.use('/api/sales', patchSaleRouter); // Change the route to /api/sales
+app.use('/api/purchases', patchPurchaseRouter); // Change the route to /api/purchases
+
+
+// Route to render the "Add Purchase" form
+app.get('/views/addPurchase', (req, res) => {
+  res.render('addPurchase'); 
+});
+
+// Route to render the "Add Sale" form
+app.get('/views/addSale', (req, res) => {
+  res.render('addSale'); 
+});
+
+app.use('/api/add-purchase', addPurchasesRouter);
+app.use('/api/add-sale', addSaleRouter);
+
 
 app.listen(PORT, () => {
   console.log(`Runescape Flipping Tracker is running on port ${PORT}.`);

@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const router = express.Router();
 const pool = require('../services/rsge_db');
 
+
 router.get('/', async (req, res) => {
     try {
       const client = await pool.connect();
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
       const purchasesResult = await client.query(purchasesQuery);
       const purchases = purchasesResult.rows;
       client.release();
-      res.render('history', { purchases });
+      res.render('purchases-all', { purchases });
     } catch (error) {
       console.error('Error fetching purchase data:', error);
       res.status(500).send('Error fetching purchase data. Please try again later.');

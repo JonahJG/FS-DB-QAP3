@@ -5,89 +5,194 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <%- include('partials/nav') %> <!-- Include the nav.ejs partial -->
+  <%- include('partials/nav') %>
   <h1>Flipping History</h1>
-  <div class="purchaseadd">
-  <h2>Add Purchase</h2>
-  <div class="purchaseform">
-  <form id="add-purchase-form" onsubmit="addPurchase(event)">
-    <label for="purchase-item-id">Item ID:</label>
-    <input type="text" id="purchase-item-id" name="purchase-item-id" required>
-  
-    <label for="purchase-item-name">Item Name:</label>
-    <input type="text" id="purchase-item-name" name="purchase-item-name" required>
-  
-    <label for="purchase-price-per-item">Price per Item:</label>
-    <input type="number" id="purchase-price-per-item" name="purchase-price-per-item" required>
-  
-    <label for="purchase-amount-bought">Amount Bought:</label>
-    <input type="number" id="purchase-amount-bought" name="purchase-amount-bought" required>
-  
-    <label for="purchase-total-amount">Total Amount:</label>
-    <input type="number" id="purchase-total-amount" name="purchase-total-amount" required>
-  
-    <button type="submit">Add Purchase</button>
-  </form>
+  <% 
+  // Calculate total profit
+  let totalProfit = 0;
+  sales.forEach((sale) => {
+    const purchase = purchases.find((purchase) => purchase.item_id === sale.item_id);
+    if (purchase) {
+      totalProfit += sale.sell_price - purchase.buy_price;
+    }
+  });
+  %>
+  <!-- Display total profit -->
+  <div class="total-profit">
+    <h2>Total Profit: <%= totalProfit %></h2>
   </div>
-</div>
-  
-<div class="saleform">
-  <h2>Add Sale</h2>
-  <div>
-  <form id="add-sale-form" onsubmit="addSale(event)">
-    <label for="sale-item-id">Item ID:</label>
-    <input type="text" id="sale-item-id" name="sale-item-id" required>
-  
-    <label for="sale-item-name">Item Name:</label>
-    <input type="text" id="sale-item-name" name="sale-item-name" required>
-  
-    <label for="sale-price-per-item">Price per Item:</label>
-    <input type="number" id="sale-price-per-item" name="sale-price-per-item" required>
-  
-    <label for="sale-amount-sold">Amount Sold:</label>
-    <input type="number" id="sale-amount-sold" name="sale-amount-sold" required>
-  
-    <label for="sale-total-amount">Total Amount:</label>
-    <input type="number" id="sale-total-amount" name="sale-total-amount" required>
-  
-    <button type="submit">Add Sale</button>
-  </form>
-</div>
-  </div>
-  
+  <a href="/views/addPurchase">Add a new purchase</a>
+  <a href="/views/addSale">Add a new sale</a>
   <div class="history-view">
     <div id="sales-history">
       <h2>Sales History - Last 10 <a href="/history/sales-all">[ALL]</a></h2>
       <% sales.forEach((sale, index) => { %>
         <% const item = items.find((item) => item.item_id === sale.item_id); %>
+        <% const purchase = purchases.find((purchase) => purchase.item_id === sale.item_id); %>
         <div class="flipping-entry">
           <p><strong>Item:</strong> <%= item ? item.item_name : 'N/A' %></p>
           <p><strong>Amount Sold:</strong> <%= sale.amt_sold %></p>
+          <p><strong>Sell Price:</strong> <%= sale.sell_price %></p>
           <p><strong>Sell Time:</strong> <%= sale.sell_time %></p>
           <p><strong>Total Price:</strong> <%= sale.total_price %></p>
-          <button onclick="editSale(<%= index %>)">Edit</button>
-          <button onclick="replaceSale(<%= index %>)">Replace</button>
-          <button onclick="deleteSale(<%= index %>)">Delete</button>
+          <p><strong>Profit:</strong> <%= item && purchase ? (sale.sell_price - purchase.buy_price) : 'N/A' %></p>
+          <button class="edit-sale-btn" data-index="<%= index %>">Edit</button>
+          <!-- Update button outside the form -->
+          <button class="update-sale-outside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+  
+          <div id="edit-sale-form-<%= index %>" style="display: none;">
+            <label for="sale-price">Sale Price:</label>
+            <input type="number" id="sale-price-<%= index %>" name="sale_price" value="<%= sale.sell_price %>" required>
+  
+            <label for="amt-sold">Amount Sold:</label>
+            <input type="number" id="amt-sold-<%= index %>" name="amt_sold" value="<%= sale.amt_sold %>" required>
+  
+            <label for="total-price">Total Price:</label>
+            <input type="number" id="total-price-<%= index %>" name="total_price" value="<%= sale.total_price %>" required>
+  
+            <!-- Update button inside the form -->
+            <button class="update-sale-inside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+            <button class="cancel-edit-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Cancel</button>
+          </div>
         </div>
       <% }); %>
     </div>
 
     <div id="purchases-history">
-      <h2>Purchases History Lat 10 <a href="./history-all">[ALL]</a></h2>
+      <h2>Purchases History Last 10 <a href="./purchases-all">[ALL]</a></h2>
       <% purchases.forEach((purchase, index) => { %>
         <% const item = items.find((item) => item.item_id === purchase.item_id); %>
         <div class="flipping-entry">
           <p><strong>Item:</strong> <%= item ? item.item_name : 'N/A' %></p>
           <p><strong>Amount Bought:</strong> <%= purchase.amt_bought %></p>
+          <p><strong>Buy Price:</strong> <%= purchase.buy_price %></p>
           <p><strong>Buy Time:</strong> <%= purchase.buy_time %></p>
           <p><strong>Total Cost:</strong> <%= purchase.total_cost %></p>
-          <button onclick="editPurchase(<%= index %>)">Edit</button>
-          <button onclick="replacePurchase(<%= index %>)">Replace</button>
-          <button onclick="deletePurchase(<%= index %>)">Delete</button>
+          <button class="edit-purchase-btn" data-index="<%= index %>" data-purchase-id="<%= purchase.purchase_id %>">Edit</button>
+          <button class="update-purchase-btn" data-index="<%= index %>" data-purchase-id="<%= purchase.purchase_id %>">Update</button>
+
+          <div id="edit-purchase-form-<%= index %>" style="display: none;">
+            <label for="buy-price">Buy Price:</label>
+            <input type="number" id="buy-price-<%= index %>" name="buy_price" value="<%= purchase.buy_price %>" required>
+
+            <label for="amt-bought">Amount Bought:</label>
+            <input type="number" id="amt-bought-<%= index %>" name="amt_bought" value="<%= purchase.amt_bought %>" required>
+
+            <label for="total-cost">Total Cost:</label>
+            <input type="number" id="total-cost-<%= index %>" name="total_cost" value="<%= purchase.total_cost %>" required>
+
+            <!-- Update button with data-purchase-id attribute -->
+            <button class="update-purchase-btn" data-index="<%= index %>" data-purchase-id="<%= purchase.purchase_id %>">Update</button>
+            <button class="cancel-edit-btn" data-index="<%= index %>">Cancel</button>
+            
+          </div>
         </div>
       <% }); %>
     </div>
   </div>
   <%- include('partials/foot') %> <!-- Include the foot.ejs partial -->
+
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const editSaleButtons = document.querySelectorAll('.edit-sale-btn');
+      const updateSaleOutsideButtons = document.querySelectorAll('.update-sale-outside-btn');
+      const updateSaleInsideButtons = document.querySelectorAll('.update-sale-inside-btn');
+      const cancelEditButtons = document.querySelectorAll('.cancel-edit-btn');
+  
+      editSaleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.dataset.index;
+          const editForm = document.getElementById(`edit-sale-form-${index}`);
+          editForm.style.display = 'block';
+        });
+      });
+  
+      updateSaleOutsideButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const index = button.dataset.index;
+          const saleId = button.dataset.saleId;
+          const salePriceInput = document.getElementById(`sale-price-${index}`);
+          const amtSoldInput = document.getElementById(`amt-sold-${index}`);
+          const totalPriceInput = document.getElementById(`total-price-${index}`);
+  
+          const payload = {
+            sell_price: parseFloat(salePriceInput.value),
+            amt_sold: parseInt(amtSoldInput.value),
+            total_price: parseFloat(totalPriceInput.value),
+          };
+  
+          try {
+            const response = await fetch(`/api/sales/${saleId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            });
+  
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error('Error updating sale:', response.status, response.statusText);
+            }
+          } catch (error) {
+            console.error('Error updating sale:', error.message);
+          }
+        });
+      });
+  
+      updateSaleInsideButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const index = button.dataset.index;
+          const saleId = button.dataset.saleId;
+          const salePriceInput = document.getElementById(`sale-price-${index}`);
+          const amtSoldInput = document.getElementById(`amt-sold-${index}`);
+          const totalPriceInput = document.getElementById(`total-price-${index}`);
+  
+          const payload = {
+            sell_price: parseFloat(salePriceInput.value),
+            amt_sold: parseInt(amtSoldInput.value),
+            total_price: parseFloat(totalPriceInput.value),
+          };
+  
+          try {
+            const response = await fetch(`/api/sales/${saleId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            });
+  
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error('Error updating sale:', response.status, response.statusText);
+            }
+          } catch (error) {
+            console.error('Error updating sale:', error.message);
+          }
+        });
+      });
+  
+      cancelEditButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.dataset.index;
+          const editForm = document.getElementById(`edit-sale-form-${index}`);
+          editForm.style.display = 'none';
+        });
+      });
+  
+      // Add event listeners for "Update" buttons in purchases history
+      const updatePurchaseButtons = document.querySelectorAll('.update-purchase-btn');
+      updatePurchaseButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          // ...
+        });
+      });
+  
+    });
+  </script>
 </body>
 </html>
