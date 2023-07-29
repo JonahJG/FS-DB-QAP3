@@ -13,16 +13,196 @@
       <% sales.forEach((sale, index) => { %>
         <div class="flipping-entry">
           <p><strong>Item:</strong> <%= sale.item_name || 'N/A' %></p>
+          <p><strong>Sell Price:</strong> <%= sale.sell_price %></p>
           <p><strong>Amount Sold:</strong> <%= sale.amt_sold %></p>
           <p><strong>Sell Time:</strong> <%= sale.sell_time %></p>
           <p><strong>Total Price:</strong> <%= sale.total_price %></p>
-          <button onclick="editSale()">Edit</button>
-          <button onclick="replaceSale()">Replace</button>
-          <button onclick="deleteSale()">Delete</button>
+          <!-- Edit sale button -->
+          <button class="edit-sale-btn" data-index="<%= index %>">Edit</button>
+          <!-- Replace sale button -->
+          <button class="replace-sale-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Replace</button>
+          <!-- Delete sale button -->
+          <button class="delete-sale-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Delete</button>
+
+          <!-- Edit sale form -->
+          <div id="edit-sale-form-<%= index %>" style="display: none;">
+            <!-- Form elements for updating the sale -->
+            <!-- Replace the input types and names according to the actual data -->
+            <label for="new-sale-price">Sale Price:</label>
+            <input type="number" id="new-sale-price-<%= index %>" name="new_sale_price" value="<%= sale.sell_price %>" required>
+  
+            <label for="new-amt-sold">Amount Sold:</label>
+            <input type="number" id="new-amt-sold-<%= index %>" name="new_amt_sold" value="<%= sale.amt_sold %>" required>
+  
+            <label for="new-total-price">Total Price:</label>
+            <input type="number" id="new-total-price-<%= index %>" name="new_total_price" value="<%= sale.total_price %>" required>
+  
+            <!-- Hidden input field for sell_time -->
+            <input type="hidden" id="new-sell-time-<%= index %>" name="new_sell_time" value="<%= new Date(sale.sell_time).toISOString().substring(0, 10) %>">
+  
+            <!-- Update sale button inside the form -->
+            <button class="update-sale-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+            <!-- Cancel edit sale button -->
+            <button class="cancel-edit-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Cancel</button>
+          </div>
+          <div id="replace-sale-form" data-index="<%= index %>" style="display: none">
+            <label for="new-sale-id-replace" disabled>Sale ID:</label>
+            <input type="number" id="new-sale-id-replace-${index}" name="new_sale_id" value="<%= sale.sale_id %>" readonly>
+
+            <label for="new-sale-item-id-replace">Item ID:</label>
+            <input type="number" id="new-sale-replace-item-id" name="new_item_id" value="<%= sale.item_id %>" required>
+
+            <label for="new-sale-sale-price">Sale Price:</label>
+            <input type="number" id="new-sale-replace-sale-price" name="new_sale_price" value="<%= sale.sell_price %>" required>
+
+            <label for="new-sale-amount-sold">Amount Sold:</label>
+            <input type="number" id="new-sale-replace-amount-sold" name="new_amt_sold" value="<%= sale.amt_sold %>" required>
+
+            <label for="new-sale-total-price">Total Price:</label>
+            <input type="number" id="new-sale-replace-total-price" name="new_total_price" value="<%= sale.total_price %>" required>
+
+            <!-- Hidden input field for sell_time -->
+            <input type="hidden" id="new-sale-replace-sell-time" name="new_sell_time" value="<%= new Date(sale.sell_time).toISOString().substring(0, 10) %>">
+
+
+          </div>
         </div>
       <% }); %>
     </div>
   </div>
-  <%- include('partials/foot') %> 
+  <%- include('partials/foot') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Edit sales buttons/functions
+      const editSaleButtons = document.querySelectorAll('.edit-sale-btn');
+
+      editSaleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.dataset.index;
+          const editForm = document.getElementById(`edit-sale-form-${index}`);
+          editForm.style.display = 'block';
+        });
+      });
+
+      // Replace sale buttons/functions
+      const replaceSaleButtons = document.querySelectorAll('.replace-sale-btn');
+
+      replaceSaleButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const index = button.dataset.index;
+          const saleId = button.dataset.saleId;
+          await handleSaleReplace(index, saleId);
+        });
+      });
+
+      // Function to handle the update process for each individual sale entry
+      const handleSaleReplace = async (index, saleId) => {
+        const newSaleIdInput = document.getElementById(`new-sale-replace-item-id-${index}`);
+        const newItemIdInput = document.getElementById(`new-sale-replace-item-id-${index}`);
+        const newSalePriceInput = document.getElementById(`new-sale-price-${index}`);
+        const newAmtSoldInput = document.getElementById(`new-amt-sold-${index}`);
+        const newTotalPriceInput = document.getElementById(`new-total-price-${index}`);
+        const newSellTimeInput = document.getElementById(`new-sell-time-${index}`);
+
+        const payload = {
+          sale_id: parseInt(newSaleIdInput.value),
+          item_id: parseInt(newItemIdInput.value),
+          sell_price: parseFloat(newSalePriceInput.value),
+          amt_sold: parseInt(newAmtSoldInput.value),
+          total_price: parseFloat(newTotalPriceInput.value),
+          sell_time: newSellTimeInput.value,
+        };
+
+        try {
+          const response = await fetch(`/api/sales-all-replace/${saleId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error('Error updating sale:', response.status, response.statusText);
+            const errorMessage = await response.text();
+            console.error('Error message:', errorMessage);
+          }
+        } catch (error) {
+          console.error('Error updating sale:', error.message);
+        }
+      }
+
+      // Delete sale buttons/functions
+      const deleteSaleButtons = document.querySelectorAll('.delete-sale-btn');
+
+      deleteSaleButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const index = button.dataset.index;
+          const saleId = button.dataset.saleId;
+          await handleSaleDelete(index, saleId);
+        });
+      });
+
+      // Update sale buttons/functions
+      const updateSaleButtons = document.querySelectorAll('.update-sale-btn');
+
+      updateSaleButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const index = button.dataset.index;
+          const saleId = button.dataset.saleId;
+          await handleSaleUpdate(index, saleId);
+        });
+      });
+
+      // Function to handle updating a sale entry
+      const handleSaleUpdate = async (index, saleId) => {
+        const newSalePriceInput = document.getElementById(`new-sale-price-${index}`);
+        const newAmtSoldInput = document.getElementById(`new-amt-sold-${index}`);
+        const newTotalPriceInput = document.getElementById(`new-total-price-${index}`);
+        const newSellTimeInput = document.getElementById(`new-sell-time-${index}`);
+
+        const payload = {
+          sell_price: parseFloat(newSalePriceInput.value),
+          amt_sold: parseInt(newAmtSoldInput.value),
+          total_price: parseFloat(newTotalPriceInput.value),
+          sell_time: newSellTimeInput.value,
+        };
+
+        try {
+          const response = await fetch(`/api/sales-all-replace/${saleId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error('Error updating sale:', response.status, response.statusText);
+            const errorMessage = await response.text();
+            console.error('Error message:', errorMessage);
+          }
+        } catch (error) {
+          console.error('Error updating sale:', error.message);
+        }
+      }
+
+      // Cancel edit buttons/functions
+      const cancelEditButtons = document.querySelectorAll('.cancel-edit-btn');
+  
+      cancelEditButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.dataset.index;
+          const editForm = document.getElementById(`edit-sale-form-${index}`);
+          editForm.style.display = 'none';
+        });
+      });
+    });
+  </script>
 </body>
 </html>

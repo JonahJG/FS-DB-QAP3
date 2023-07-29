@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { getAllSales, getItemsByIds } = require('../services/dataService');
+const { getAllSales, getItemsByIds } = require('../public/services/dataServicePg');
 
 router.get('/', async (req, res) => {
   try {

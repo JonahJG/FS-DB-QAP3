@@ -1,5 +1,5 @@
 // dataService.js
-const pool = require('../services/rsge_db');
+const pool = require('./rsge_db_pg');
 
 async function getRecentSales(limit) {
   const client = await pool.connect();

@@ -68,13 +68,14 @@ nav a{
 #sales-history {
     background: bisque;
     width: 50%;
+    padding: 20px;
     
 }
 
 #purchases-history {
     background: rgb(187, 164, 135);
     width: 50%;
-    
+    padding: 20px;
 }
 
 .purchaseadd {
@@ -118,4 +119,30 @@ nav a{
 .flipping-entry {
     border: 1px solid black;
     height: 250px;
+    padding: 20px;
+}
+
+.form {
+    background-color: white;
+}
+
+.add {
+    display: inline-block;
+    font-size: 20px;
+    text-align: center;
+    background-color: rgb(11, 11, 33);
+    color: yellow;
+    max-width: 200px;
+    margin: auto;
+    height: 30px;
+    padding-top: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
+    margin-bottom: 30px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.construction {
+    color: red;
 }

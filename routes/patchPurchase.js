@@ -1,8 +1,8 @@
+
 const express = require('express');
 const router = express.Router();
 const { Pool } = require('pg');
-const pool = require('../services/rsge_db');
-
+const pool = require('../public/services/rsge_db_pg');
 
 router.patch('/:purchase_id', async (req, res) => {
   try {
@@ -24,11 +24,6 @@ router.patch('/:purchase_id', async (req, res) => {
       return res.status(404).json({ error: 'Purchase not found.' });
     }
 
-    // Fetch the corresponding item record for the purchase
-    const itemQuery = 'SELECT * FROM items WHERE item_id = $1';
-    const itemResult = await pool.query(itemQuery, [purchase.item_id]);
-    const item = itemResult.rows[0];
-
     // Update the purchase data in the database
     const updateQuery = 'UPDATE purchases SET buy_price = $1, amt_bought = $2, total_cost = $3 WHERE purchase_id = $4';
     await pool.query(updateQuery, [buy_price, amt_bought, total_cost, purchaseId]);
@@ -41,8 +36,6 @@ router.patch('/:purchase_id', async (req, res) => {
         amt_bought: amt_bought,
         total_cost: total_cost,
       },
-      item: item,
-      purchase: purchase,
     };
 
     res.status(200).json(responseData);
@@ -53,5 +46,6 @@ router.patch('/:purchase_id', async (req, res) => {
     res.status(500).json({ error: 'Error updating purchase. Please try again later.', details: error.message });
   }
 });
+
 
 module.exports = router;
