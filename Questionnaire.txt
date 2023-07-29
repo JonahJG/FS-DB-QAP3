@@ -1,0 +1,23 @@
+1.How many hours did it take you to complete this assessment? (Please keep try to keep track of how many hours you have spent working on each individual part of this assessment as best you can -an estimation is fine; we just want a rough idea.)
+
+I couldn't keep track of the hours, but from 8am-9pm most days for about 10-12 days.
+
+
+2.What online resources you have used? (My lectures, YouTube, Stack overflow etc.)
+
+Everything I could. Lectures, youtube, google, stack overflow, reddit, chat GPT, o'reilly books.
+
+
+3.Did you need to ask any of your friends in solving the problems. (If yes, please mention name of the friend. They must be amongst your class fellows.)
+
+I didn't feel like my friends were able to help with this project, as they were busy with their own, so I didn't ask though I do think I needed it.
+
+
+4.Did you need to ask questions to any of your instructors? If so, how many questions did you ask (or how many help sessions did you require)?
+
+I asked one question. It's unfortunate but I didn't get a response to tha question.
+
+
+5.Rate (subjectively) the difficulty of each question from your own perspective, and whether you feel confident that you can solve a similar but different problem requiring some of the same techniques in the future now that you’ve completed this one.
+
+I would definitely say, compared to everything I've done up to this point, this has been the hardest project I've had to work on. There were a lot of bugs, and I don't feel like I really learned how to implement the necessary functions properly. I feel like learning it was kind of rushed, and that I was on my own for a lot of it and I needed some more help. I understand that instructors get extremely busy and are human just like us students, but I do wish there was some more help. I also struggled with my mental health during this project, so it is technically unfinished. It seems to do everything correctly, though. For the "PUT" command, the entry changes because of how I have things to be displayed, but through console logging you can see that the data is being replaced. I am not happy with my work, but I don't think I can do much more at this point other than move on, for my mental health. I do believe it will reach minimum requirements though. I do not feel like I would be able to very easily solve a similar but different problem in the future.
