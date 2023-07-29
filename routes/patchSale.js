@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Pool } = require('pg');
-const pool = require('../services/rsge_db');
+const pool = require('../public/services/rsge_db_pg');
 
 router.patch('/:sale_id', async (req, res) => {
   try {

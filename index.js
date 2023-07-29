@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 const methodOverride = require('method-override');
-const { getRecentSales, getRecentPurchases, getItemsByIds } = require('./services/dataService');
-// Require the history router
+const { getRecentSales, getRecentPurchases, getItemsByIds } = require('./public/services/dataServicePg');
 const historyRouter = require('./routes/history');
 const salesAllRouter = require('./routes/sales-all'); 
 const purchasesAllRouter = require('./routes/purchases-all');
@@ -11,24 +10,15 @@ const addPurchasesRouter = require('./routes/addPurchases');
 const addSaleRouter = require('./routes/addSales')
 const patchSaleRouter = require('./routes/patchSale');
 const patchPurchaseRouter = require('./routes/patchPurchase');
-
-
+const replaceSaleRouter = require('./routes/salesReplace');
+const deleteSaleRouter = require('./routes/deleteSale');
 
 app.set('view engine', 'ejs');
-app.set('views', 'views'); // Set the views directory
-
-// Serve static files from the "public" folder
+app.set('views', 'views');
 app.use(express.static('public'));
-
-// Add the method-override middleware
 app.use(methodOverride('_method'));
-
-// Use the built-in express.json() middleware for parsing JSON data in the request body
 app.use(express.json());
-
-// Use the built-in express.urlencoded() middleware for parsing form data in the request body
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 global.DEBUG = true;
 
 app.get('/', async (req, res) => {
@@ -92,6 +82,8 @@ app.use('/sales-all', salesAllRouter);
 app.use('/purchases-all', purchasesAllRouter);
 app.use('/api/sales', patchSaleRouter); // Change the route to /api/sales
 app.use('/api/purchases', patchPurchaseRouter); // Change the route to /api/purchases
+app.use('/api/sales', replaceSaleRouter);
+app.use('/api/sales', deleteSaleRouter);
 
 
 // Route to render the "Add Purchase" form

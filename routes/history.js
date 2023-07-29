@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const router = express.Router();
-const pool = require('../services/rsge_db');
+const pool = require('../public/services/rsge_db_pg');
 
 
 router.get('/', async (req, res) => {

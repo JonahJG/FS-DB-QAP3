@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
   <%- include('partials/nav') %>
   <h1>Flipping History</h1>
   <% 
@@ -21,8 +22,8 @@
   <div class="total-profit">
     <h2>Total Profit: <%= totalProfit %></h2>
   </div>
-  <a href="/views/addPurchase">Add a new purchase</a>
-  <a href="/views/addSale">Add a new sale</a>
+  <a href="/views/addPurchase" class="add">Add a new purchase</a>
+  <a href="/views/addSale" class="add">Add a new sale</a>
   <div class="history-view">
     <div id="sales-history">
       <h2>Sales History - Last 10 <a href="/history/sales-all">[ALL]</a></h2>
@@ -38,9 +39,10 @@
           <p><strong>Profit:</strong> <%= item && purchase ? (sale.sell_price - purchase.buy_price) : 'N/A' %></p>
           <button class="edit-sale-btn" data-index="<%= index %>">Edit</button>
           <!-- Update button outside the form -->
-          <button class="update-sale-outside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+          <button class="put-sale-outside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+          <button class="delete-sale-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Delete</button>
   
-          <div id="edit-sale-form-<%= index %>" style="display: none;">
+          <div class="form" id="edit-sale-form-<%= index %>" style="display: none;">
             <label for="sale-price">Sale Price:</label>
             <input type="number" id="sale-price-<%= index %>" name="sale_price" value="<%= sale.sell_price %>" required>
   
@@ -49,17 +51,48 @@
   
             <label for="total-price">Total Price:</label>
             <input type="number" id="total-price-<%= index %>" name="total_price" value="<%= sale.total_price %>" required>
+
+             <!-- Hidden input field for sell_time -->
+  <input type="hidden" id="sell-time-put-<%= index %>" name="sell_time" value="<%= new Date(sale.sell_time).toISOString().substring(0, 10) %>">
+
   
             <!-- Update button inside the form -->
-            <button class="update-sale-inside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+            <button class="edit-sale-inside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
             <button class="cancel-edit-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Cancel</button>
+          </div>
+
+          <div class="form" id="put-sale-form-<%= index %>" style="display: none;">
+            <label for="sale-id">Sale ID:</label>
+            <input type="number" id="sale-id-put-<%= index %>" name="sale_id" value="<%= sale.sale_id %>" required>
+
+            <label for="item-id">Item ID:</label>
+            <input type="number" id="item-id-put-<%= index %>" name="item_id" value="<%= item.item_id %>" required>
+
+            <label for="sale-price">Sale Price:</label>
+            <input type="number" id="sale-price-put-<%= index %>" name="sale_price" value="<%= sale.sell_price %>" required>
+
+            <label for="sale-time">Sale Time:</label>
+            <!-- Use the formatDateToInputValue function to format the date -->
+<input type="date" id="sale-time-put-<%= index %>" name="sale_time-put" value="<%= new Date(sale.sell_time).toISOString().substring(0, 10) %>" required>
+
+  
+            <label for="amt-sold">Amount Sold:</label>
+            <input type="number" id="amt-sold-put-<%= index %>" name="amt_sold" value="<%= sale.amt_sold %>" required>
+  
+            <label for="total-price">Total Price:</label>
+            <input type="number" id="total-price-put-<%= index %>" name="total_price" value="<%= sale.total_price %>" required>
+
+            <!-- Update button inside the form -->
+            <button class="put-sale-inside-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Update</button>
+            <button class="cancel-put-btn" data-index="<%= index %>" data-sale-id="<%= sale.sale_id %>">Cancel</button>
           </div>
         </div>
       <% }); %>
     </div>
 
     <div id="purchases-history">
-      <h2>Purchases History Last 10 <a href="./purchases-all">[ALL]</a></h2>
+      <h1 class="construction">UNDER CONSTRUCTION. EDIT WORKS.</h1>
+      <h2>Purchases History Last 10<a href="./purchases-all">[ALL]</a></h2>
       <% purchases.forEach((purchase, index) => { %>
         <% const item = items.find((item) => item.item_id === purchase.item_id); %>
         <div class="flipping-entry">
@@ -82,7 +115,7 @@
             <input type="number" id="total-cost-<%= index %>" name="total_cost" value="<%= purchase.total_cost %>" required>
 
             <!-- Update button with data-purchase-id attribute -->
-            <button class="update-purchase-btn" data-index="<%= index %>" data-purchase-id="<%= purchase.purchase_id %>">Update</button>
+            <button class="edit-purchase-inside-btn" data-index="<%= index %>" data-purchase-id="<%= purchase.purchase_id %>">Update</button>
             <button class="cancel-edit-btn" data-index="<%= index %>">Cancel</button>
             
           </div>
@@ -91,108 +124,271 @@
     </div>
   </div>
   <%- include('partials/foot') %> <!-- Include the foot.ejs partial -->
+  
 
   
   <script>
+
+
     document.addEventListener('DOMContentLoaded', () => {
+
+      // Edit sales buttons/functions
+
       const editSaleButtons = document.querySelectorAll('.edit-sale-btn');
-      const updateSaleOutsideButtons = document.querySelectorAll('.update-sale-outside-btn');
-      const updateSaleInsideButtons = document.querySelectorAll('.update-sale-inside-btn');
-      const cancelEditButtons = document.querySelectorAll('.cancel-edit-btn');
   
-      editSaleButtons.forEach(button => {
+  editSaleButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const index = button.dataset.index;
+      const editForm = document.getElementById(`edit-sale-form-${index}`);
+      editForm.style.display = 'block';
+    });
+  });
+
+  const updateSaleOutsideButtons = document.querySelectorAll('.update-sale-outside-btn');
+
+  const handleSaleUpdate = async (index, saleId, salePriceInput, amtSoldInput, totalPriceInput) => {
+    const payload = {
+      sell_price: parseFloat(salePriceInput.value),
+      amt_sold: parseInt(amtSoldInput.value),
+      total_price: parseFloat(totalPriceInput.value),
+    };
+
+    try {
+      const response = await fetch(`/api/sales/${saleId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        location.reload();
+      } else {
+        console.error('Error updating sale:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error updating sale:', error.message);
+    }
+  };
+
+  updateSaleOutsideButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const index = button.dataset.index;
+      const saleId = button.dataset.saleId;
+      const salePriceInput = document.getElementById(`sale-price-${index}`);
+      const amtSoldInput = document.getElementById(`amt-sold-${index}`);
+      const totalPriceInput = document.getElementById(`total-price-${index}`);
+      await handleSaleUpdate(index, saleId, salePriceInput, amtSoldInput, totalPriceInput);
+    });
+  });
+
+  const editSaleInsideButtons = document.querySelectorAll('.edit-sale-inside-btn');
+
+  editSaleInsideButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const index = button.dataset.index;
+      const saleId = button.dataset.saleId;
+      const salePriceInput = document.getElementById(`sale-price-${index}`);
+      const amtSoldInput = document.getElementById(`amt-sold-${index}`);
+      const totalPriceInput = document.getElementById(`total-price-${index}`);
+      await handleSaleUpdate(index, saleId, salePriceInput, amtSoldInput, totalPriceInput);
+    });
+  });
+
+  // Edit purchase buttons/functions
+      const editPurchaseButtons = document.querySelectorAll('.edit-purchase-btn');
+  
+      editPurchaseButtons.forEach(button => {
         button.addEventListener('click', () => {
           const index = button.dataset.index;
-          const editForm = document.getElementById(`edit-sale-form-${index}`);
+          const editForm = document.getElementById(`edit-purchase-form-${index}`);
           editForm.style.display = 'block';
         });
       });
   
-      updateSaleOutsideButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-          const index = button.dataset.index;
-          const saleId = button.dataset.saleId;
-          const salePriceInput = document.getElementById(`sale-price-${index}`);
-          const amtSoldInput = document.getElementById(`amt-sold-${index}`);
-          const totalPriceInput = document.getElementById(`total-price-${index}`);
-  
-          const payload = {
-            sell_price: parseFloat(salePriceInput.value),
-            amt_sold: parseInt(amtSoldInput.value),
-            total_price: parseFloat(totalPriceInput.value),
-          };
-  
-          try {
-            const response = await fetch(`/api/sales/${saleId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-            });
-  
-            if (response.ok) {
-              location.reload();
-            } else {
-              console.error('Error updating sale:', response.status, response.statusText);
-            }
-          } catch (error) {
-            console.error('Error updating sale:', error.message);
-          }
-        });
-      });
-  
-      updateSaleInsideButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-          const index = button.dataset.index;
-          const saleId = button.dataset.saleId;
-          const salePriceInput = document.getElementById(`sale-price-${index}`);
-          const amtSoldInput = document.getElementById(`amt-sold-${index}`);
-          const totalPriceInput = document.getElementById(`total-price-${index}`);
-  
-          const payload = {
-            sell_price: parseFloat(salePriceInput.value),
-            amt_sold: parseInt(amtSoldInput.value),
-            total_price: parseFloat(totalPriceInput.value),
-          };
-  
-          try {
-            const response = await fetch(`/api/sales/${saleId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-            });
-  
-            if (response.ok) {
-              location.reload();
-            } else {
-              console.error('Error updating sale:', response.status, response.statusText);
-            }
-          } catch (error) {
-            console.error('Error updating sale:', error.message);
-          }
-        });
-      });
+
+
+      const editPurchaseInsideButtons = document.querySelectorAll('.edit-purchase-inside-btn');
+
+// Function to handle the update process for each individual purchase entry
+editPurchaseInsideButtons.forEach(button => {
+  button.addEventListener('click', async () => {
+    const index = button.dataset.index;
+    const purchaseId = button.dataset.purchaseId;
+    console.log('Clicked button with index:', index, 'and purchaseId:', purchaseId);
+    await handlePurchaseUpdate(index, purchaseId);
+  });
+});
+
+const handlePurchaseUpdate = async (index, purchaseId) => {
+  const buyPriceInput = document.getElementById(`buy-price-${index}`);
+  const amtBoughtInput = document.getElementById(`amt-bought-${index}`);
+  const totalCostInput = document.getElementById(`total-cost-${index}`);
+
+  console.log('Buy Price Input:', buyPriceInput.value);
+  console.log('Amount Bought Input:', amtBoughtInput.value);
+  console.log('Total Cost Input:', totalCostInput.value);
+
+  const payload = {
+    buy_price: parseFloat(buyPriceInput.value),
+    amt_bought: parseInt(amtBoughtInput.value),
+    total_cost: parseFloat(totalCostInput.value),
+  };
+
+  console.log('Payload:', payload);
+
+  try {
+    const response = await fetch(`/api/purchases/${purchaseId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    console.log('Response Status:', response.status);
+    console.log('Response Status Text:', response.statusText);
+
+    if (response.ok) {
+      location.reload();
+    } else {
+      console.error('Error updating purchase:', response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error('Error updating purchase:', error.message);
+  }
+};
+
+      const cancelEditButtons = document.querySelectorAll('.cancel-edit-btn');
   
       cancelEditButtons.forEach(button => {
         button.addEventListener('click', () => {
           const index = button.dataset.index;
           const editForm = document.getElementById(`edit-sale-form-${index}`);
+          const purEditForm = document.getElementById(`edit-purchase-form-${index}`);
+          editForm.style.display = 'none';
+          purEditForm.style.display = 'none';
+        });
+      });
+
+      const cancelPutButtons = document.querySelectorAll('.cancel-put-btn');
+  
+      cancelPutButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.dataset.index;
+          const editForm = document.getElementById(`put-sale-form-${index}`);
           editForm.style.display = 'none';
         });
-      });
-  
-      // Add event listeners for "Update" buttons in purchases history
-      const updatePurchaseButtons = document.querySelectorAll('.update-purchase-btn');
-      updatePurchaseButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-          // ...
+      })
+
+// Sales PUT request functions/buttons
+
+const putSaleOutsideButtons = document.querySelectorAll('.put-sale-outside-btn');
+
+const openPutSaleForm = (index) => {
+  const editForm = document.getElementById(`put-sale-form-${index}`);
+  editForm.style.display = 'block';
+};
+
+putSaleOutsideButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const index = button.dataset.index;
+    openPutSaleForm(index);
+  });
+});
+
+
+
+      // Get all the "put-sale-inside-btn" buttons
+const putSaleInsideButtons = document.querySelectorAll('.put-sale-inside-btn');
+
+// Function to handle the update process for each individual sale entry
+putSaleInsideButtons.forEach(button => {
+  button.addEventListener('click', async () => {
+    const index = button.dataset.index;
+    const saleId = button.dataset.saleId;
+    await handleSaleReplace(index, saleId);
+  });
+});
+
+const handleSaleReplace = async (index, saleId) => {
+  const saleIdInput = document.getElementById(`sale-id-put-${index}`);
+  const itemIdInput = document.getElementById(`item-id-put-${index}`);
+  const salePriceInput = document.getElementById(`sale-price-put-${index}`);
+  const saleTimeInput = document.getElementById(`sale-time-put-${index}`);
+  const amtSoldInput = document.getElementById(`amt-sold-put-${index}`);
+  const totalPriceInput = document.getElementById(`total-price-put-${index}`);
+
+  const payloadPut = {
+    item_id: parseInt(itemIdInput.value),
+    sell_price: parseFloat(salePriceInput.value),
+    sell_time: saleTimeInput.value,
+    amt_sold: parseInt(amtSoldInput.value),
+    total_price: parseFloat(totalPriceInput.value),
+  };
+
+  console.log('Payload:', payloadPut);
+
+  try {
+    const response = await fetch(`/api/sales/${saleId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payloadPut),
+    });
+
+    if (response.ok) {
+      location.reload();
+    } else {
+      console.error('Error updating sale:', response.status, response.statusText);
+      const errorMessage = await response.text();
+      console.error('Error message:', errorMessage);
+    }
+  } catch (error) {
+    console.error('Error updating sale:', error.message);
+  }
+};
+
+
+    // Function to handle the deletion of a sales entry
+    const handleSaleDelete = async (index, saleId) => {
+      // Show a pop-up to confirm deletion
+      const confirmed = confirm('Are you sure you want to delete this sales entry?');
+      if (!confirmed) return;
+
+      try {
+        // Send a DELETE request to the server
+        const response = await fetch(`/api/sales-delete/${saleId}`, {
+          method: 'DELETE',
         });
+
+        if (response.ok) {
+          location.reload();
+        } else {
+          console.error('Error deleting sale:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('Error deleting sale:', error.message);
+      }
+    };
+
+    // Get all the "delete-sale-btn" buttons
+    const deleteSaleButtons = document.querySelectorAll('.delete-sale-btn');
+
+    // Add event listeners to handle sale deletion
+    deleteSaleButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        const index = button.dataset.index;
+        const saleId = button.dataset.saleId;
+        await handleSaleDelete(index, saleId);
       });
-  
+    });
+
+
     });
   </script>
+  
 </body>
 </html>
