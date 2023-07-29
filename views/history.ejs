@@ -360,7 +360,7 @@ const handleSaleReplace = async (index, saleId) => {
 
       try {
         // Send a DELETE request to the server
-        const response = await fetch(`/api/sales-delete/${saleId}`, {
+        const response = await fetch(`/api/sales/${saleId}`, {
           method: 'DELETE',
         });
 
